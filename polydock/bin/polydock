@@ -1,0 +1,955 @@
+#!/usr/bin/gjs
+
+imports.gi.versions.GdkX11 = "3.0"
+imports.gi.versions.Wnck = "3.0"
+imports.gi.versions.Gtk = "3.0"
+imports.gi.versions.Gio = "2.0"
+imports.gi.versions.GObject = "2.0"
+imports.gi.versions.GLib = "2.0"
+imports.gi.versions.Gdk = "3.0"
+imports.gi.versions.GdkPixbuf = "2.0"
+(function (GdkX11, GLib, Gdk, GdkPixbuf, Gtk, Wnck, Gio, GObject) {
+    'use strict';
+
+    GdkX11 = GdkX11 && Object.prototype.hasOwnProperty.call(GdkX11, 'default') ? GdkX11['default'] : GdkX11;
+    GLib = GLib && Object.prototype.hasOwnProperty.call(GLib, 'default') ? GLib['default'] : GLib;
+    Gdk = Gdk && Object.prototype.hasOwnProperty.call(Gdk, 'default') ? Gdk['default'] : Gdk;
+    GdkPixbuf = GdkPixbuf && Object.prototype.hasOwnProperty.call(GdkPixbuf, 'default') ? GdkPixbuf['default'] : GdkPixbuf;
+    Gtk = Gtk && Object.prototype.hasOwnProperty.call(Gtk, 'default') ? Gtk['default'] : Gtk;
+    Wnck = Wnck && Object.prototype.hasOwnProperty.call(Wnck, 'default') ? Wnck['default'] : Wnck;
+    Gio = Gio && Object.prototype.hasOwnProperty.call(Gio, 'default') ? Gio['default'] : Gio;
+    GObject = GObject && Object.prototype.hasOwnProperty.call(GObject, 'default') ? GObject['default'] : GObject;
+
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation.
+
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+    ***************************************************************************** */
+    /* global Reflect, Promise */
+
+    var extendStatics = function(d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+
+    function __extends(d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    }
+
+    var __assign = function() {
+        __assign = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+
+    function __values(o) {
+        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+        if (m) return m.call(o);
+        if (o && typeof o.length === "number") return {
+            next: function () {
+                if (o && i >= o.length) o = void 0;
+                return { value: o && o[i++], done: !o };
+            }
+        };
+        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+    }
+
+    function __read(o, n) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator];
+        if (!m) return o;
+        var i = m.call(o), r, ar = [], e;
+        try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+        }
+        catch (error) { e = { error: error }; }
+        finally {
+            try {
+                if (r && !r.done && (m = i["return"])) m.call(i);
+            }
+            finally { if (e) throw e.error; }
+        }
+        return ar;
+    }
+
+    // /**
+    //  * https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
+    //  * https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/clearInterval
+    //  */
+    // export const setInterval = (func: () => unknown, delay: number) => {
+    //   return GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+    //     func()
+    //     return GLib.SOURCE_CONTINUE
+    //   })
+    // }
+    // export const clearInterval = GLib.source_remove
+    // /**
+    //  * https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout
+    //  * https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/clearTimeout
+    //  */
+    // export const setTimeout = (func: () => unknown, delay: number) => {
+    //   return GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+    //     func()
+    //     return GLib.SOURCE_REMOVE
+    //   })
+    // }
+    // export const clearTimeout = GLib.source_remove
+    function fileExists(file) {
+        return (GLib.file_test(file, GLib.FileTest.EXISTS) &&
+            !GLib.file_test(file, GLib.FileTest.IS_DIR));
+    }
+    function resolve(path) {
+        var e_1, _a;
+        var parts = [];
+        try {
+            for (var _b = __values(path.split("/")), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var p = _c.value;
+                if (p === ".") {
+                    if (parts.length)
+                        continue;
+                    parts = GLib.get_current_dir().split("/");
+                }
+                else if (p == "..")
+                    parts.pop();
+                else if (p == "~") {
+                    parts = GLib.get_home_dir().split("/");
+                }
+                else
+                    parts.push(p);
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return parts.join("/");
+    }
+    function realpath(path) {
+        while (GLib.file_test(path, GLib.FileTest.IS_SYMLINK)) {
+            path = GLib.file_read_link(path);
+        }
+        return path;
+    }
+    function run(cmd, vars) {
+        var e_2, _a;
+        if (vars === void 0) { vars = {}; }
+        try {
+            for (var _b = __values(Object.entries(vars)), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var _d = __read(_c.value, 2), k = _d[0], v = _d[1];
+                cmd = cmd.replace(new RegExp("\\{" + k + "\\}", "giu"), "" + v);
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        log("[run] " + cmd);
+        var _e = __read(GLib.spawn_command_line_sync(cmd), 4), success = _e[0], stdout = _e[1], stderr = _e[2], exitCode = _e[3];
+        if (!success)
+            throw new Error("Failed (" + exitCode + ") to execute " + cmd + ": " + stdout + "\n" + stderr);
+        return stdout ? imports.byteArray.toString(stdout) : "";
+    }
+
+    var defaults = {
+        appearance: {
+            position: "top",
+            alignment: "center",
+            offsetX: 0,
+            offsetY: 0,
+            iconSize: 40,
+            theme: "default",
+            iconTheme: "default",
+        },
+        behavior: {
+            groupBy: ["instance", "visibility"],
+            activeWorkspaceOnly: false,
+            showHidden: true,
+            showVisible: true,
+            autoHide: true,
+            click: "toggle-cycle",
+            "menu-click": "show",
+            exclude: ["scratchpad"],
+        },
+        commands: {
+            hide: "bspc node {window} -g hidden=on -f",
+            unhide: "bspc node {window} -g hidden=off -f",
+        },
+        icons: {
+            "google-agenda": "calendar.google.com",
+            gmail: "mail.google.com",
+            keep: "keep.google.com",
+            messengerfordesktop: "www.messenger.com",
+            whatsapp: "whatsapp",
+        },
+    };
+    var Config = /** @class */ (function () {
+        function Config() {
+            this.verbose = true;
+            this.themePath = [];
+            this.settings = __assign({}, defaults);
+            this.path = GLib.path_get_dirname(realpath(imports.system.programInvocationName));
+            this.path = resolve(GLib.path_get_dirname(this.path));
+            this.themePath.push(this.path + "/config/themes");
+            this.theme = resolve(this.path + "/config/themes/default.css");
+        }
+        Config.prototype.update = function () {
+            var e_1, _a;
+            this.load(GLib.get_user_config_dir() + "/polydock/settings.ini") ||
+                this.load(this.path + "/config/settings.ini");
+            if (this.file)
+                this.themePath.unshift(resolve(GLib.path_get_dirname(this.file) + "/themes"));
+            try {
+                for (var _b = __values(this.themePath), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var p = _c.value;
+                    this.theme = resolve(p + "/" + (this.settings.appearance.theme || "default") + ".css");
+                    if (fileExists(this.theme))
+                        break;
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            if (!fileExists(this.theme)) {
+                log("Theme file not found! " + this.theme);
+                imports.system.exit(1);
+            }
+            this.verbose && log("[theme] " + this.theme);
+        };
+        Config.prototype.load = function (file) {
+            var e_2, _a, e_3, _b;
+            var _c;
+            file = resolve(file);
+            if (!fileExists(file))
+                return false;
+            this.verbose && log("[settings] " + file);
+            this.file = file;
+            var ini = GLib.KeyFile.new();
+            ini.load_from_file(file, GLib.KeyFileFlags.KEEP_COMMENTS);
+            try {
+                for (var _d = __values(Object.entries(this.settings)), _e = _d.next(); !_e.done; _e = _d.next()) {
+                    var _f = __read(_e.value, 2), group = _f[0], items = _f[1];
+                    if (!ini.has_group(group))
+                        continue;
+                    var entries = Object.entries(items);
+                    if (group == "icons")
+                        entries = (((_c = ini.get_keys("icons")) === null || _c === void 0 ? void 0 : _c[0]) || []).map(function (x) { return [x, ""]; });
+                    var _g = __read(ini.get_keys(group), 1), haveKeys = _g[0];
+                    try {
+                        for (var entries_1 = (e_3 = void 0, __values(entries)), entries_1_1 = entries_1.next(); !entries_1_1.done; entries_1_1 = entries_1.next()) {
+                            var _h = __read(entries_1_1.value, 2), key = _h[0], value = _h[1];
+                            if (!haveKeys || !haveKeys.includes(key))
+                                continue;
+                            var data = ini.get_value(group, key);
+                            if (data) {
+                                if (Array.isArray(value)) {
+                                    // @ts-ignore
+                                    this.settings[group][key] = ini.get_string_list(group, key);
+                                }
+                                else if (typeof value == "boolean")
+                                    // @ts-ignore
+                                    this.settings[group][key] = ini.get_boolean(group, key);
+                                else if (typeof value == "number")
+                                    // @ts-ignore
+                                    this.settings[group][key] = ini.get_integer(group, key);
+                                // @ts-ignore
+                                else
+                                    this.settings[group][key] = ini.get_string(group, key);
+                            }
+                        }
+                    }
+                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                    finally {
+                        try {
+                            if (entries_1_1 && !entries_1_1.done && (_b = entries_1.return)) _b.call(entries_1);
+                        }
+                        finally { if (e_3) throw e_3.error; }
+                    }
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            return true;
+        };
+        Config.prototype.dump = function () {
+            var e_4, _a, e_5, _b;
+            var ini = GLib.KeyFile.new();
+            try {
+                for (var _c = __values(Object.entries(this.settings)), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var _e = __read(_d.value, 2), group = _e[0], items = _e[1];
+                    try {
+                        for (var _f = (e_5 = void 0, __values(Object.entries(items))), _g = _f.next(); !_g.done; _g = _f.next()) {
+                            var _h = __read(_g.value, 2), key = _h[0], value = _h[1];
+                            if (Array.isArray(value))
+                                ini.set_string_list(group, key, value);
+                            else
+                                ini.set_string(group, key, "" + value);
+                        }
+                    }
+                    catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                    finally {
+                        try {
+                            if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+                        }
+                        finally { if (e_5) throw e_5.error; }
+                    }
+                }
+            }
+            catch (e_4_1) { e_4 = { error: e_4_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_4) throw e_4.error; }
+            }
+            ini.set_comment("appearance", "offsetX", "Additional offsets to further fine-tune the position of the dock");
+            ini.set_comment("appearance", "position", "One of top, bottom, left, right");
+            ini.set_comment("appearance", "alignment", "One of start, center, end");
+            // ini.set_string("appearance", "theme", this.theme)
+            ini.set_comment("appearance", "theme", "Name of the theme file, or 'default'.\nSee config/themes/default.css");
+            ini.set_comment("appearance", "iconTheme", "An gtk icon theme name, or 'default'");
+            ini.set_comment("behavior", "autoHide", "Automatically hides Polydock if another window overlaps");
+            ini.set_comment("behavior", "click", "Action on click. One of: show, hide, toggle, cycle, toggle-cycle");
+            ini.set_comment("behavior", "groupBy", "Specify a list of keys to group windows on: class;instance;title;visibility");
+            ini.set_comment("behavior", "exclude", "Exclude windows whose class or instance contains one of these values");
+            ini.set_comment("icons", 
+            // eslint-disable-next-line unicorn/no-null
+            null, "Rules for custom icons matching the class::instance of windows\nicon-name=string to be part of class::instance");
+            return ini.to_data()[0];
+        };
+        return Config;
+    }());
+    var config = new Config();
+
+    /* eslint-disable unicorn/no-null */
+    var DockGroup = /** @class */ (function () {
+        function DockGroup() {
+        }
+        DockGroup.getGroupKeyValue = function (window, groupBy) {
+            switch (groupBy) {
+                case "class":
+                    return window.get_class_group_name();
+                case "instance":
+                    return window.get_class_instance_name();
+                case "title":
+                    return window.get_name();
+                case "visibility":
+                    return "hidden:" + window.is_minimized();
+            }
+        };
+        DockGroup.getGroupKey = function (window) {
+            var _this = this;
+            var groupBy = config.settings.behavior.groupBy;
+            if (!groupBy.length)
+                return false;
+            return groupBy.map(function (g) { return _this.getGroupKeyValue(window, g); }).join(".");
+        };
+        DockGroup.getGroupWindows = function (window) {
+            var _this = this;
+            var group = this.getGroupKey(window);
+            return window
+                .get_screen()
+                .get_windows()
+                .filter(function (x) { return _this.getGroupKey(x) == group; });
+        };
+        DockGroup.doAction = function (window, action) {
+            var _a;
+            log("[action] " + action);
+            var timestamp = new Date().getTime() / 1000;
+            var activeId = (_a = window.get_screen().get_active_window()) === null || _a === void 0 ? void 0 : _a.get_xid();
+            if (action == "show") {
+                if (window.is_minimized() && config.settings.commands.unhide)
+                    run(config.settings.commands.unhide, { window: window.get_xid() });
+                window.activate(timestamp);
+            }
+            else if (action == "hide") {
+                if (!window.is_minimized() && config.settings.commands.hide)
+                    run(config.settings.commands.hide, { window: window.get_xid() });
+                window.minimize();
+            }
+            else if (action == "toggle") {
+                if (window.get_xid() == activeId)
+                    this.doAction(window, "hide");
+                else
+                    this.doAction(window, "show");
+            }
+            else if (action == "cycle") {
+                var group = this.getGroupWindows(window);
+                // Cycle though existing windows, if active window is part of group
+                for (var g = 0; g < group.length; g++) {
+                    if (group[g].get_xid() == activeId) {
+                        if (g === group.length - 1)
+                            this.doAction(group[0], "show");
+                        else
+                            this.doAction(group[g + 1], "show");
+                        return;
+                    }
+                }
+                this.doAction(window, "show");
+            }
+            else if (action == "toggle-cycle") {
+                if (this.getGroupWindows(window).length > 1)
+                    this.doAction(window, "cycle");
+                else
+                    this.doAction(window, "toggle");
+            }
+        };
+        return DockGroup;
+    }());
+
+    var XPropType;
+    (function (XPropType) {
+        XPropType[XPropType["STRING"] = 0] = "STRING";
+        XPropType[XPropType["UTF8_STRING"] = 1] = "UTF8_STRING";
+        XPropType[XPropType["CARDINAL"] = 2] = "CARDINAL";
+        XPropType[XPropType["ATOM"] = 3] = "ATOM";
+    })(XPropType || (XPropType = {}));
+    function getXProp(xid, prop, type) {
+        var window = GdkX11.X11Window.foreign_new_for_display(Gdk.Display.get_default(), xid);
+        if (window) {
+            var _a = __read(Gdk.property_get(window, Gdk.atom_intern(prop, false), Gdk.Atom.intern(XPropType[type], false), 0, 2048, 0), 4), found = _a[0], _actualType = _a[1], _actualFormat = _a[2], data = _a[3];
+            if (found)
+                return imports.byteArray.toString(data);
+        }
+    }
+
+    var DockItem = /** @class */ (function () {
+        function DockItem(window, horizontal) {
+            var _this = this;
+            this.window = window;
+            this.horizontal = horizontal;
+            this.button = new Gtk.ToolItem();
+            this.iconWidget = new Gtk.Image();
+            this.menu = new Gtk.Menu();
+            this.name = this.window.get_class_instance_name();
+            this.setClass("dock-item");
+            var eventBox = new Gtk.EventBox();
+            eventBox.add(this.iconWidget);
+            eventBox.set_events(Gdk.EventMask.BUTTON_PRESS_MASK & Gdk.EventMask.ENTER_NOTIFY_MASK);
+            this.button.add(eventBox);
+            this.update();
+            this.window.connect("icon-changed", function () {
+                _this.updateIcon();
+                _this.iconWidget.show_all();
+            });
+            this.window.connect("state-changed", function (_window, _changes, _newState) {
+                _this.setClass("hidden", _this.window.is_minimized());
+            });
+            // Add hover states
+            eventBox.connect("enter-notify-event", function () {
+                _this.iconWidget.set_state_flags(Gtk.StateFlags.PRELIGHT, false);
+            });
+            eventBox.connect("leave-notify-event", function () {
+                _this.iconWidget.unset_state_flags(Gtk.StateFlags.PRELIGHT);
+            });
+            this.menu.attach_to_widget(this.button, null);
+            eventBox.connect("button-press-event", function (_button, event) {
+                var _a, _b;
+                if (event.get_event_type() == Gdk.EventType.BUTTON_PRESS) {
+                    if (((_a = event.get_button()) === null || _a === void 0 ? void 0 : _a[1]) == 3) {
+                        _this.popup();
+                    }
+                    else if (((_b = event.get_button()) === null || _b === void 0 ? void 0 : _b[1]) == 1) {
+                        DockGroup.doAction(_this.window, config.settings.behavior.click);
+                    }
+                }
+            });
+        }
+        DockItem.prototype.popup = function () {
+            this.menu.show_all();
+            this.menu.popup_at_widget(this.button, Gdk.Gravity.SOUTH, Gdk.Gravity.NORTH, null);
+        };
+        DockItem.prototype.updateIcon = function () {
+            var e_1, _a;
+            var iconTheme = Gtk.IconTheme.get_default();
+            if (config.settings.appearance.iconTheme &&
+                config.settings.appearance.iconTheme !== "default") {
+                iconTheme = new Gtk.IconTheme();
+                iconTheme.set_custom_theme(config.settings.appearance.iconTheme);
+            }
+            var cleanup = function (iconName) {
+                if (iconName) {
+                    return iconName.replace(/\s+/gu, "").toLowerCase();
+                }
+            };
+            var lookup = [];
+            var groupIcon = cleanup(this.window.get_class_group_name());
+            var instanceIcon = cleanup(this.window.get_class_instance_name());
+            lookup.push(getXProp(this.window.get_xid(), "_GTK_APPLICATION_ID", XPropType.UTF8_STRING), instanceIcon);
+            var noGroupIcons = ["brave-browser", "chromium-browser", "chrome-browser"];
+            if (groupIcon && !noGroupIcons.includes(groupIcon)) {
+                lookup.push(groupIcon);
+            }
+            var _loop_1 = function (iconK, iconV) {
+                if (iconTheme.has_icon(iconK) &&
+                    lookup.some(function (x) { return ("" + x).includes(iconV.toLowerCase()); })) {
+                    lookup.unshift(iconK);
+                }
+            };
+            try {
+                // // Load custom icons from config
+                for (var _b = __values(Object.entries(config.settings.icons)), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var _d = __read(_c.value, 2), iconK = _d[0], iconV = _d[1];
+                    _loop_1(iconK, iconV);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            var icon = this.window.get_icon();
+            var iconNames = lookup.filter(function (x) { return x; });
+            var iconInfo = iconTheme.choose_icon(iconNames, config.settings.appearance.iconSize, Gtk.IconLookupFlags.FORCE_SIZE);
+            if (iconInfo) {
+                log("[icon] " + iconInfo.get_filename());
+                icon = iconInfo.load_icon();
+            }
+            else {
+                icon = icon.copy();
+                if (icon)
+                    icon = icon.scale_simple(config.settings.appearance.iconSize, config.settings.appearance.iconSize, GdkPixbuf.InterpType.BILINEAR);
+            }
+            this.iconWidget.set_from_pixbuf(icon);
+            this.iconWidget.show();
+        };
+        DockItem.prototype.update = function () {
+            this.updateIcon();
+            this.setClass("hidden", this.window.is_minimized());
+            this.addMenuItem(this, true);
+        };
+        DockItem.prototype.addMenuItem = function (item, clear) {
+            var _this = this;
+            var _a, _b, _c, _d;
+            if (clear === void 0) { clear = false; }
+            var label = ((_b = (_a = item.window.get_workspace()) === null || _a === void 0 ? void 0 : _a.get_name()) !== null && _b !== void 0 ? _b : "?") + ": " + item.window.get_name();
+            if (label.length > 60)
+                label = label.slice(0, 60) + "...";
+            if (clear) {
+                this.menu.get_children().forEach(function (c) { return _this.menu.remove(c); });
+            }
+            var menuItem = Gtk.ImageMenuItem.new_with_label(label);
+            menuItem.set_always_show_image(true);
+            menuItem.set_image(Gtk.Image.new_from_pixbuf((_d = (_c = item.iconWidget
+                .get_pixbuf()) === null || _c === void 0 ? void 0 : _c.copy()) === null || _d === void 0 ? void 0 : _d.scale_simple(24, 24, GdkPixbuf.InterpType.BILINEAR)));
+            menuItem.connect("activate", function () {
+                DockGroup.doAction(item.window, config.settings.behavior["menu-click"]);
+            });
+            this.menu.append(menuItem);
+            this.iconWidget.set_tooltip_text(label);
+        };
+        DockItem.prototype.setActive = function (value) {
+            if (value === void 0) { value = true; }
+            if (value)
+                this.addClass("active");
+            else
+                this.removeClass("active");
+        };
+        DockItem.prototype.addClass = function (klass) {
+            this.iconWidget.get_style_context().add_class(klass);
+        };
+        DockItem.prototype.toggleClass = function (klass) {
+            this.iconWidget.get_style_context().has_class(klass)
+                ? this.removeClass(klass)
+                : this.addClass(klass);
+        };
+        DockItem.prototype.setClass = function (klass, yeasNo) {
+            if (yeasNo === void 0) { yeasNo = true; }
+            yeasNo ? this.addClass(klass) : this.removeClass(klass);
+        };
+        DockItem.prototype.removeClass = function (klass) {
+            this.iconWidget.get_style_context().remove_class(klass);
+        };
+        return DockItem;
+    }());
+
+    var Dock = /** @class */ (function () {
+        function Dock(horizontal) {
+            var _this = this;
+            if (horizontal === void 0) { horizontal = true; }
+            this.horizontal = horizontal;
+            this.items = new Map();
+            this.toolbar = new Gtk.Toolbar();
+            this.show = false;
+            var screen = Wnck.Screen.get_default();
+            if (!screen)
+                throw new Error("No screens detected!");
+            this.screen = screen;
+            this.toolbar.set_name("dock");
+            this.toolbar.get_style_context().add_class("dock");
+            this.toolbar.set_show_arrow(false);
+            this.toolbar.set_orientation(horizontal ? Gtk.Orientation.HORIZONTAL : Gtk.Orientation.VERTICAL);
+            this.toolbar.show_all();
+            this.screen.force_update();
+            this.update("constructor");
+            screen.connect("active-workspace-changed", function () {
+                return _this.update("active-workspace-changed");
+            });
+            screen.connect("active-window-changed", function (_screen, prev) {
+                // HACK: refcount seems wrong for closed windows that were active before
+                if (prev && !prev.get_class_group())
+                    prev.ref();
+                _this.update("active-window-changed");
+            });
+            screen.connect("window-opened", function () { return _this.update("window-opened"); });
+            screen.connect("window-closed", function () { return _this.update("window-closed"); });
+        }
+        Dock.prototype.update = function (event) {
+            var e_1, _a, e_2, _b;
+            var _this = this;
+            var _c, _d, _e, _f;
+            log("[update:start] " + event);
+            // this.screen.force_update()
+            var windows = this.screen.get_windows();
+            if (!windows)
+                return log("No Windows!");
+            // Remove closed windows
+            var xids = new Set(windows.map(function (x) { return x.get_xid(); }));
+            try {
+                for (var _g = __values(this.items.entries()), _h = _g.next(); !_h.done; _h = _g.next()) {
+                    var _j = __read(_h.value, 2), xid = _j[0], item = _j[1];
+                    if (!xids.has(xid)) {
+                        log("- " + item.name);
+                        this.items.delete(xid);
+                        this.toolbar.remove(item.button);
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_h && !_h.done && (_a = _g.return)) _a.call(_g);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            // Add opened windows
+            windows.forEach(function (window) {
+                var _a;
+                var xid = window.get_xid();
+                if (!_this.items.has(xid)) {
+                    window.connect("geometry-changed", function () { return _this.toolbar.check_resize(); });
+                    window.connect("workspace-changed", function () {
+                        return _this.update("workspace-changed");
+                    });
+                    var item = new DockItem(window, _this.horizontal);
+                    log("+ " + item.name);
+                    _this.toolbar.add(item.button);
+                    _this.items.set(xid, item);
+                }
+                // existing window
+                else
+                    log("= " + ((_a = _this.items.get(xid)) === null || _a === void 0 ? void 0 : _a.name));
+            });
+            // Update window state
+            var workspace = this.screen.get_active_workspace();
+            var groups = new Map();
+            var active = (_d = (_c = this.screen.get_active_window()) === null || _c === void 0 ? void 0 : _c.get_xid()) !== null && _d !== void 0 ? _d : undefined;
+            var buttonCount = 0;
+            var _loop_1 = function (item) {
+                item.setClass("active", active == item.window.get_xid());
+                var groupKey = DockGroup.getGroupKey(item.window);
+                var visible = true;
+                if (item.window.is_skip_tasklist())
+                    visible = false;
+                else if (config.settings.behavior.activeWorkspaceOnly &&
+                    !item.window.is_on_workspace(workspace))
+                    visible = false;
+                else if (!config.settings.behavior.showHidden &&
+                    item.window.is_minimized())
+                    visible = false;
+                else if (!config.settings.behavior.showVisible &&
+                    !item.window.is_minimized())
+                    visible = false;
+                else if (config.settings.behavior.exclude.some(function (ex) {
+                    var _a, _b;
+                    return ((_a = item.window
+                        .get_class_instance_name()) === null || _a === void 0 ? void 0 : _a.toLowerCase().includes(ex.toLowerCase())) || ((_b = item.window
+                        .get_class_group_name()) === null || _b === void 0 ? void 0 : _b.toLowerCase().includes(ex.toLowerCase()));
+                }))
+                    visible = false;
+                if (groupKey && groups.has(groupKey)) {
+                    visible = false;
+                    (_e = groups.get(groupKey)) === null || _e === void 0 ? void 0 : _e.addMenuItem(item);
+                    if (active == item.window.get_xid())
+                        (_f = groups.get(groupKey)) === null || _f === void 0 ? void 0 : _f.setActive(true);
+                }
+                if (visible && groupKey && !groups.has(groupKey)) {
+                    groups.set(groupKey, item);
+                    item.addMenuItem(item, true);
+                }
+                if (visible) {
+                    item.button.show_all();
+                    buttonCount++;
+                }
+                else
+                    item.button.hide();
+            };
+            try {
+                for (var _k = __values(this.items.values()), _l = _k.next(); !_l.done; _l = _k.next()) {
+                    var item = _l.value;
+                    _loop_1(item);
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_l && !_l.done && (_b = _k.return)) _b.call(_k);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            log("[update:end] #" + buttonCount + " items after " + event);
+            if (buttonCount) {
+                this.show = true;
+            }
+            else {
+                this.show = false;
+            }
+            this.toolbar.check_resize();
+        };
+        return Dock;
+    }());
+
+    var AppWindow = /** @class */ (function () {
+        function AppWindow(application) {
+            var _this = this;
+            this.hidden = true;
+            var win = new Gtk.ApplicationWindow({
+                title: "Polydock",
+                type: Gtk.WindowType.TOPLEVEL,
+                application: application,
+            });
+            this.window = win;
+            win.set_wmclass("polydock", "Polydock");
+            win.get_style_context().add_class("top");
+            win.set_decorated(false);
+            win.set_type_hint(Gdk.WindowTypeHint.DOCK);
+            win.stick();
+            win.set_keep_above(true);
+            win.set_skip_taskbar_hint(true);
+            win.connect("destroy", function () { return Gtk.main_quit(); });
+            win.connect("delete-event", function () { return false; });
+            win.set_resizable(true);
+            this.loadStyles();
+            win.connect("size-allocate", function () { return _this.updatePosition(); });
+            win.connect("screen-changed", function () { return _this.updateSize(); });
+            this.dock = new Dock(["top", "bottom"].includes(config.settings.appearance.position));
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            win.add(this.dock.toolbar);
+            this.dock.toolbar.connect("check-resize", function () { return _this.updateSize(); });
+            this.updateSize();
+        }
+        AppWindow.prototype.loadStyles = function () {
+            // Make window transparent if possible
+            var haveAlpha = this.window.get_screen().get_rgba_visual() ? true : false;
+            log("Alpha Visuals: " + haveAlpha);
+            log("Composited: " + this.window.is_composited());
+            if (haveAlpha) {
+                this.window.set_visual(this.window.get_screen().get_rgba_visual());
+                this.window.set_app_paintable(true);
+            }
+            // Load CSS
+            var css = new Gtk.CssProvider();
+            css.load_from_path(config.theme);
+            Gtk.StyleContext.add_provider_for_screen(this.window.get_screen(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+        };
+        AppWindow.prototype.updateSize = function () {
+            if (this.hidden)
+                this.autoHide();
+            // Hide window when dock is hidden
+            if (this.hidden)
+                return;
+            // Resize the window to fit the toolbar
+            var _a = __read(this.dock.toolbar.get_preferred_size(), 2), naturalSize = _a[1];
+            var size = this.window.get_size();
+            if (naturalSize &&
+                naturalSize.height > 0 &&
+                naturalSize.width > 0 &&
+                (naturalSize.width !== size[0] || naturalSize.height !== size[1])) {
+                // log(`Size updated to ${naturalSize.width}, ${naturalSize.height}`)
+                this.window.resize(naturalSize.width, naturalSize.height);
+            }
+            this.autoHide();
+        };
+        AppWindow.prototype.updatePosition = function () {
+            var _a, _b;
+            var x = 0;
+            var y = 0;
+            var screenSize = {
+                width: this.window.get_screen().get_width(),
+                height: this.window.get_screen().get_height(),
+            };
+            var size = {
+                width: this.window.get_allocated_width(),
+                height: this.window.get_allocated_height(),
+            };
+            if (["top", "bottom"].includes(config.settings.appearance.position)) {
+                if (config.settings.appearance.position == "top")
+                    y = 0;
+                if (config.settings.appearance.position == "bottom")
+                    y = screenSize.height - size.height;
+                if (config.settings.appearance.alignment == "start")
+                    x = 0;
+                if (config.settings.appearance.alignment == "center")
+                    x = Math.round(screenSize.width / 2 - size.width / 2);
+                if (config.settings.appearance.alignment == "end")
+                    x = Math.round(screenSize.width - size.width);
+            }
+            if (["left", "right"].includes(config.settings.appearance.position)) {
+                if (config.settings.appearance.position == "left")
+                    x = 0;
+                if (config.settings.appearance.position == "right")
+                    x = screenSize.width - size.width;
+                if (config.settings.appearance.alignment == "start")
+                    y = 0;
+                if (config.settings.appearance.alignment == "center")
+                    y = Math.round(screenSize.height / 2 - size.height / 2);
+                if (config.settings.appearance.alignment == "end")
+                    y = Math.round(screenSize.height - size.height);
+            }
+            x += (_a = config.settings.appearance.offsetX) !== null && _a !== void 0 ? _a : 0;
+            y += (_b = config.settings.appearance.offsetY) !== null && _b !== void 0 ? _b : 0;
+            var pos = this.window.get_position();
+            if (pos[0] != x || pos[1] != y) {
+                this.window.move(x, y);
+                this.autoHide();
+            }
+        };
+        AppWindow.prototype.overlapsWithActiveWindow = function () {
+            var active = this.dock.screen.get_active_window();
+            if (active === null || active === void 0 ? void 0 : active.is_skip_tasklist())
+                active = undefined;
+            if (active && this.window) {
+                var _a = __read(active.get_geometry(), 4), ax1 = _a[0], ay1 = _a[1], aw = _a[2], ah = _a[3];
+                var _b = __read(this.window.get_position(), 2), bx1 = _b[0], by1 = _b[1];
+                var _c = __read(this.window.get_size(), 2), bw = _c[0], bh = _c[1];
+                var overlaps = true;
+                // No geometry
+                if (bw === null || bh === null || bx1 === null || by1 === null)
+                    overlaps = false;
+                else if (aw === null || ah === null || ax1 === null || ay1 === null)
+                    overlaps = false;
+                // no horizontal overlap
+                else if (ax1 >= bx1 + bw || bx1 >= ax1 + aw)
+                    overlaps = false;
+                // no vertical overlap
+                else if (ay1 >= by1 + bh || by1 >= ay1 + ah)
+                    overlaps = false;
+                return overlaps;
+            }
+            return false;
+        };
+        AppWindow.prototype.autoHide = function () {
+            var overlaps = config.settings.behavior.autoHide && this.overlapsWithActiveWindow();
+            var show = this.dock.show && !overlaps;
+            if (show) {
+                if (this.hidden) {
+                    log("[autohide] showing dock");
+                    this.hidden = false;
+                }
+                this.window.show();
+            }
+            else {
+                if (!this.hidden) {
+                    log("[autohide] hiding dock [overlaps=" + overlaps + "] [items=" + this.dock.show + "]");
+                    this.hidden = true;
+                }
+                this.window.hide();
+            }
+        };
+        return AppWindow;
+    }());
+
+    var PolydockApp = /** @class */ (function (_super) {
+        __extends(class_1, _super);
+        function class_1() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        class_1.prototype._init = function () {
+            var props = {
+                application_id: "org.polydock",
+                flags: Gio.ApplicationFlags.FLAGS_NONE,
+            };
+            _super.prototype._init.call(this, props);
+            _super.prototype.add_main_option.call(this, "version", 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE, "Show polydock version", null);
+            _super.prototype.add_main_option.call(this, "dump-config", 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE, "Show the loaded configuration. Useful to create your own config.", null);
+            GLib.set_application_name("Polydock");
+            GLib.set_prgname("polydock");
+        };
+        class_1.prototype.vfunc_handle_local_options = function (options) {
+            if (options.contains("version")) {
+                print("2.1.0");
+            }
+            else if (options.contains("dump-config")) {
+                config.verbose = false;
+                config.update();
+                print(config.dump());
+            }
+            else
+                return -1;
+            return 0;
+        };
+        class_1.prototype.vfunc_startup = function () {
+            var _a;
+            log("[app] startup");
+            (_a = _super.prototype.vfunc_startup) === null || _a === void 0 ? void 0 : _a.call(this);
+        };
+        class_1.prototype.vfunc_activate = function () {
+            var _a;
+            log("[app] activate");
+            if (!this.window) {
+                config.update();
+                this.window = new AppWindow(this);
+            }
+            // this.window.window.present()
+            (_a = _super.prototype.vfunc_activate) === null || _a === void 0 ? void 0 : _a.call(this);
+        };
+        return class_1;
+    }(Gtk.Application));
+    PolydockApp = GObject.registerClass({
+        GTypeName: "PolydockApp",
+        CssName: "polydock",
+    }, PolydockApp);
+
+    // Force GdkX11 to load before Gdk
+    Wnck.set_client_type(Wnck.ClientType.PAGER);
+    Wnck.set_default_icon_size(128);
+    var argv = [imports.system.programInvocationName].concat(ARGV);
+    var app = new PolydockApp();
+    var status = app.run(argv);
+    imports.system.exit(status);
+
+}(imports.gi.GdkX11, imports.gi.GLib, imports.gi.Gdk, imports.gi.GdkPixbuf, imports.gi.Gtk, imports.gi.Wnck, imports.gi.Gio, imports.gi.GObject));
