@@ -1,4 +1,4 @@
-#!/usr/bin/env fish
+#!/usr/bin/fish
 
 # Check if Xephyr is installed
 which Xephyr &>/dev/null || echo 'Xephyr is not installed on this machine. Quitting.' >&2

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 [ "$1" = 'up' ] && amixer -D pulse sset Master 5%+
 [ "$1" = 'down' ] && amixer -D pulse sset Master 5%-

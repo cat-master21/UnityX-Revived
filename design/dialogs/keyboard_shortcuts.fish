@@ -1,7 +1,8 @@
 #!/usr/bin/fish
 
+# There are probably more Unity7 shortcuts
+
 zenity --list \
-	--class='UnityX' \
 	--title='Keyboard Shortcuts' \
 	--text='A list of keyboard shortcuts can be found below.' \
 	--column='Shortcut'   --column='Definition' \

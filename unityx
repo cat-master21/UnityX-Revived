@@ -1,4 +1,4 @@
-#!/usr/bin/env fish
+#!/usr/bin/fish
 
 if [ "$argv[1]" = "-v" ] || [ "$argv[1]" = "--version" ];
   echo 'UnityX 10.0-rc5' && exit
