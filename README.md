@@ -8,6 +8,7 @@ Currently a rewrite in Dash (fast Posix shell) is in progress.
 * [ ] Move away from Tint2 (`design/dock`) and use `nwg-panel`
 * [ ] Convert settings to Zenity (Gtk4) from Python
 * [ ] Use Pipewire (`keybindings/vol.sh`) instead of Pulseaudio
+* [ ] Other modernizations
 
 ## Why move away from Fish and change things?
 From research done, Fish isn't that fast, and Dash is significantly faster. Overall, many users wouldn't have fish installed as the default Shell so it is yet another dependency.
