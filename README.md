@@ -8,7 +8,56 @@ Currently a rewrite in Dash (fast Posix shell) is in progress.
 * [ ] Move away from Tint2 (`design/dock`) and use `nwg-panel`
 * [ ] Convert settings to Zenity (Gtk4) from Python
 * [ ] Use Pipewire (`keybindings/vol.sh`) instead of Pulseaudio
-* [ ] Other modernizations
+* [ ] Other modernization's
 
-## Why move away from Fish and change things?
-From research done, Fish isn't that fast, and Dash is significantly faster. Overall, many users wouldn't have fish installed as the default Shell so it is yet another dependency.
+## Why move away from a bunch of these dependencies?
+First, from what I've seen, Fish isn't the fastest shell, I give that to Dash which links to `sh` by default. Some components like [notify-osd](https://bazaar.launchpad.net/~indicator-applet-developers/notify-osd/trunk/files) which is pretty obscure, Ubuntu based (Ubuntu's old indicators instead of Ayatana Indicators), and old with the last commit in 2019 and it's commit history wasn't steady. There are various reasons, but this project tries to get closer to regular Unity.
+
+## List of project dependencies
+### Before:
+```
+xdotool
+fish
+bash
+xfwm4
+xfce-panel
+python3
+polybar
+nemo
+gtk3
+xorg
+pavucontrol
+zenity
+tint2
+rofi
+feh
+blueman
+notify-osd
+alsa-utils
+arandr
+network-manager-gnome
+```
+
+### After:
+```
+xdotool
+fish
+bash
+xfwm4
+xfce-panel
+python3
+polybar
+nemo
+gtk3
+xorg
+pavucontrol
+zenity
+tint2
+rofi
+feh
+blueman
+notify-osd
+alsa-utils
+arandar
+network-manager-gnome
+```
