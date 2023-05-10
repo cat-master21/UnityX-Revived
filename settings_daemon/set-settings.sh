@@ -19,3 +19,4 @@ elif [[ "$(gsettings get org.gnome.desktop.interface icon-theme)" != "$OLD_ICON_
 	export OLD_ICON_THEME="$(gsettings get org.gnome.desktop.interface icon-theme)"
 fi
 
+# Add lockscreen

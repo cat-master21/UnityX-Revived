@@ -36,6 +36,7 @@ notify-osd
 alsa-utils
 arandr
 network-manager-gnome
+paplay
 ```
 
 ### After:
@@ -58,6 +59,7 @@ feh
 blueman
 notify-osd
 alsa-utils
-arandar
+arandr
 network-manager-gnome
+paplay
 ```
