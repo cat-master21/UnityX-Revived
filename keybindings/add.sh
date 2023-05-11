@@ -1,4 +1,4 @@
-#!/usr/bin/fish
+#!/usr/bin/sh
 
 # Volume control
 python3 keybindings/keybindings.py '<Alt>s' 'pavucontrol' '' &

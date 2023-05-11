@@ -18,7 +18,7 @@ python3 keybindings/keybindings.py '<Super>a' 'rofi -theme design/launcher/sideb
 python3 keybindings/keybindings.py '<Alt>a' 'rofi -theme design/launcher/sidebar.rasi -show drun' '' &
 
 # Add remaining keybindings
-fish keybindings/add.fish &
+sh keybindings/add.sh &
 
 # Launch panel
 sleep 1 && polybar -c design/panel/unity_panel.ini main &

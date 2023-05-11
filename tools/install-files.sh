@@ -22,8 +22,7 @@ cp -r ./applications \
 ./polydock \
 ./settings \
 ./settings_daemon \
-./sounds \
-./testing "$1"/usr/share/unityx
+./sounds "$1"/usr/share/unityx
 cp unityx "$1"/usr/share/unityx
 
 echo "Complete"
