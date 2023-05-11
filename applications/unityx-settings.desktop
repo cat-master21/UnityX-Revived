@@ -1,11 +1,11 @@
 [Desktop Entry]
 Name=UnityX Settings
 Icon=preferences-system
-Exec=fish /usr/share/unityx/settings/settings.gui
+Exec=bash /usr/share/unityx/settings/settings-manager.sh
 Terminal=false
 Type=Application
 StartupNotify=true
-Categories=System;
+Categories=System;Utility;Settings;DesktopSettings;LXQt;X-XFCE-SettingsDialog;X-XFCE-PersonalSettings;X-GNOME-PersonalSettings;
 OnlyShowIn=UnityX;
 Keywords=Preferences;Settings;
 X-Ubuntu-Gettext-Domain=unity-control-center

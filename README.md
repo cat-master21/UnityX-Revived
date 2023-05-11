@@ -13,8 +13,11 @@ Currently a rewrite in Dash (fast Posix shell) is in progress.
 ## Why move away from a bunch of these dependencies?
 First, from what I've seen, Fish isn't the fastest shell, I give that to Dash which links to `sh` by default. Some components like [notify-osd](https://bazaar.launchpad.net/~indicator-applet-developers/notify-osd/trunk/files) which is pretty obscure, Ubuntu based (Ubuntu's old indicators instead of Ayatana Indicators), and old with the last commit in 2019 and it's commit history wasn't steady. There are various reasons, but this project tries to get closer to regular Unity.
 
-## List of project dependencies
-### Before:
+# Control Center?
+UnityX doesn't need yet another control center to the list. All UnityX specifics is done in UnityX's settings manager. you can use Unity7 control center, Xfce4, Mate, Cinnamon, etc. They are all very similar in style and trying to recreate it would be difficult. It is **highly recommended** to use **`mate-control-center`**.
+
+# List of project dependencies
+## Before:
 ```
 xdotool
 fish
@@ -39,7 +42,7 @@ network-manager-gnome
 paplay
 ```
 
-### After:
+## After:
 ```
 xdotool
 fish
