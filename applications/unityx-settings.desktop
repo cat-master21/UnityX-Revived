@@ -1,11 +1,11 @@
 [Desktop Entry]
-Name=UnityX Ubuntu Settings
+Name=UnityX Settings
 Icon=preferences-system
-Exec=unity-control-center --overview
+Exec=fish /usr/share/unityx/settings/settings.gui
 Terminal=false
 Type=Application
 StartupNotify=true
-Categories=GNOME;GTK;System;
+Categories=System;
 OnlyShowIn=UnityX;
 Keywords=Preferences;Settings;
 X-Ubuntu-Gettext-Domain=unity-control-center
